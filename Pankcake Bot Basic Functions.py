@@ -1,9 +1,9 @@
 ## Sudo Code For Pankcake Bot
 
 import numpy as np
-import kinematics as kin
+import kinematics_key_hw07 as kin
 from visualization import VizScene
-import transforms as tr
+import transforms_key_hw04 as tr
 
 ## Steps that Baxter uses to flip the pancake:
 # 1. Move to initial position planar to the pancake
