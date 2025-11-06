@@ -3,8 +3,7 @@
 import numpy as np
 import kinematics as kin
 from visualization import VizScene
-
-
+import transforms as tr
 
 ## Steps that Baxter uses to flip the pancake:
 # 1. Move to initial position planar to the pancake
@@ -18,6 +17,15 @@ from visualization import VizScene
 # 9. Flip panckake onto plate
 
 ## Baxter DH Parameters
+L = np.array([270.35, 69, 364.35, 69, 374.29, 10, 229.525]) / 1000
+
+dh = [[0, L[0], L[1], -np.pi/2],
+       [-np.pi/2, 0, 0, -np.pi/2],
+       [0, L[2], -L[3], np.pi/2],
+       [0, 0, 0, -np.pi/2],
+       [0, L[4], -L[5], np.pi/2],
+       [0, 0, 0, -np.pi/2],
+       [np.pi, L[6], 0, 0]]
 
 # Funciont to slide under pancake
 def slide_under_pancake():
