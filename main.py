@@ -1,32 +1,20 @@
 import numpy as np
+from setup_baxter import setup_baxter
+from flip_pancake_sequence import flip_pancake_sequence
+
 import kinematics_key_hw07 as kin
 from visualization import VizScene
 import transforms_key_hw04 as tr
 np.set_printoptions(precision=4, suppress=True)
 
+if __name__ == "__main__":
 
-L = np.array([270.35, 69, 364.35, 69, 374.29, 10, 229.525]) / 1000
+    arm = setup_baxter()
 
-dh = [[0, L[0], L[1], -np.pi/2],
-       [-np.pi/2, 0, 0, -np.pi/2],
-       [0, L[2], -L[3], np.pi/2],
-       [0, 0, 0, -np.pi/2],
-       [0, L[4], -L[5], np.pi/2],
-       [0, 0, 0, -np.pi/2],
-       [np.pi, L[6], 0, 0]]
+    q = [0,0,0,0,0,0,0]
 
-
-T0_in_torso = [[0.7071, 0.7071, 0, 0.06353],
-               [-0.7071, 0.7071, 0, -0.2597],
-               [0, 0, 1, 0.119],
-               [0, 0, 0, 1]]
-
-arm = kin.SerialArm(dh, base=T0_in_torso)
-
-q = [0,0,0,0,0,0,0]
-
-viz = VizScene()
-viz.add_arm(arm)
-viz.update(qs=[q])
-viz.hold()
+    viz = VizScene()
+    viz.add_arm(arm)
+    viz.update(qs=[q])
+    viz.hold()
 
