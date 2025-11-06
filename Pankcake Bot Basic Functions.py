@@ -17,6 +17,7 @@ import transforms as tr
 # 9. Flip panckake onto plate
 
 ## Baxter DH Parameters
+# Parameters Added from Lab1_Part1.py
 L = np.array([270.35, 69, 364.35, 69, 374.29, 10, 229.525]) / 1000
 
 dh = [[0, L[0], L[1], -np.pi/2],
