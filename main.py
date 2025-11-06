@@ -29,3 +29,4 @@ viz = VizScene()
 viz.add_arm(arm)
 viz.update(qs=[q])
 viz.hold()
+
