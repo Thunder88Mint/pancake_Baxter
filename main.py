@@ -10,6 +10,7 @@ np.set_printoptions(precision=4, suppress=True)
 if __name__ == "__main__":
 
     arm = setup_baxter()
+    flip_pancake_sequence(arm)
 
     q = [0,0,0,0,0,0,0]
 
