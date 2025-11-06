@@ -28,6 +28,10 @@ dh = [[0, L[0], L[1], -np.pi/2],
        [0, 0, 0, -np.pi/2],
        [np.pi, L[6], 0, 0]]
 
+# Orient to position in front of pancake
+def go_to_pancake_position():
+    pass
+
 # Funciont to slide under pancake
 def slide_under_pancake():
     pass
@@ -41,7 +45,7 @@ def rotate_wrist():
     pass    
 
 # Function to retreat to initial position
-def retreat_initial_position():
+def initial_position():
     pass
 
 # Function to move pancake to plate position
