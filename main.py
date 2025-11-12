@@ -1,6 +1,7 @@
 import numpy as np
 from setup_baxter import setup_baxter
 from flip_pancake_sequence import flip_pancake_sequence
+from travel2pancake import travel2pancake
 
 import kinematics_key_hw07 as kin
 from visualization import VizScene
@@ -10,6 +11,7 @@ np.set_printoptions(precision=4, suppress=True)
 if __name__ == "__main__":
 
     arm = setup_baxter()
+    travel2pancake(arm)
     flip_pancake_sequence(arm)
 
     q = [0,0,0,0,0,0,0]
