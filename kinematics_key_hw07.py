@@ -409,6 +409,156 @@ class SerialArm:
             viz.close_viz()
 
         return (q, e, count, count < max_iter, 'No errors noted, all clear')
+    
+
+    def ik_full_pose(self, target, q0=None, method='J_T', force=True, tol=1e-4, K=None, kd=0.001, max_iter=100, 
+                    debug=False, debug_step=False):
+        """
+        (qf, ef, iter, reached_max_iter, status_msg) = arm.ik2(target, q0=None, method='jt', force=False, tol=1e-6, K=None)
+        Description:
+            Returns a solution to the inverse kinematics problem finding
+            joint angles corresponding to the position (x y z coords) of target
+
+        Args:
+            target: 3x1 numpy array that defines the target location. 
+
+            q0: length of initial joint coordinates, defaults to q=0 (which is
+            often a singularity - other starting positions are recommended)
+
+            method: String describing which IK algorithm to use. Options include:
+                - 'pinv': damped pseudo-inverse solution, qdot = J_dag * e * dt, where
+                J_dag = J.T * (J * J.T + kd**2)^-1
+                - 'J_T': jacobian transpose method, qdot = J.T * K * e
+
+            force: Boolean, if True will attempt to solve even if a naive reach check
+            determines the target to be outside the reach of the arm
+
+            tol: float, tolerance in the norm of the error in pose used as termination criteria for while loop
+
+            K: 6x6 numpy matrix. For both pinv and J_T, K is the positive definite gain matrix used for both. 
+
+            kd: is a scalar used in the pinv method to make sure the matrix is invertible. 
+
+            max_iter: maximum attempts before giving up.
+
+            "debug" and "debug_step" are used to plot intermediate values of algorithm. 
+
+        Returns:
+            qf: 6x1 numpy matrix of final joint values. If IK fails to converge the last set
+            of joint angles is still returned
+
+            ef: 3x1 numpy vector of the final error
+
+            count: int, number of iterations
+
+            flag: bool, "true" indicates successful IK solution and "false" unsuccessful
+
+            status_msg: A string that may be useful to understanding why it failed. 
+        """
+        # Fill in q if none given, and convert to numpy array 
+        if isinstance(q0, np.ndarray):
+            q = q0
+        elif q0 == None:
+            q = np.array([0.0]*self.n)
+        else:
+            q = np.array(q0)
+
+        # initializing some variables in case checks below don't work
+        error = None
+        count = 0
+
+        # Try basic check for if the target is in the workspace.
+        # Maximum length of the arm is sum(sqrt(d_i^2 + a_i^2)), distance to target is norm(A_t)
+        maximum_reach = 0
+        for i in range(self.n):  # Add max length of each link
+            maximum_reach = maximum_reach + np.sqrt(self.dh[i][1] ** 2 + self.dh[i][2] ** 2)
+
+        pt = target[:3,3]  # Find distance to target
+        target_distance = np.sqrt(pt[0] ** 2 + pt[1] ** 2 + pt[2] ** 2)
+
+        if target_distance > maximum_reach and not force:
+            print("WARNING: Target outside of reachable workspace!")
+            return q, error, count, False, "Failed: Out of workspace"
+        else:
+            if target_distance > maximum_reach:
+                print("Target out of workspace, but finding closest solution anyway")
+            else:
+                print("Target passes naive reach test, distance is {:.1} and max reach is {:.1}".format(
+                    float(target_distance), float(maximum_reach)))
+
+        if not isinstance(K, np.ndarray):
+            return q, error, count, False,  "No gain matrix 'K' provided"
+
+        count = 0
+
+        def get_error(q):
+            e = np.zeros(6)
+
+            cur_position = self.fk(q)
+            e[0:3] = target[:3,3] - cur_position[0:3, 3]
+
+            des_R = target[:3,:3]
+            cur_R = cur_position[:3,:3]
+            cur_R_in_n = cur_R.T @ des_R
+            axis_angle = R2axis(cur_R_in_n)
+            err_theta = axis_angle[0]
+            err_r = axis_angle[1:4]
+            err_vec_in_n = err_r * err_theta
+            err_vec = cur_R @ err_vec_in_n
+            e[3:6] = err_vec
+
+            return e
+
+        def get_jacobian(q):
+            J = self.jacob(q)
+            return J
+
+        def get_jdag(J):
+            Jdag = J.T @ np.linalg.inv(J @ J.T + np.eye(6) * kd**2)
+            return Jdag
+
+        e = get_error(q)
+
+        if debug == True: 
+            from visualization import VizScene
+            import time
+            arm = SerialArm(self.dh, self.jt, self.base, self.tip)
+            viz = VizScene()
+            viz.add_arm(arm)
+            
+            # this arm with joints that are almost pink is for the intermediate solutions
+            viz.add_arm(arm, joint_colors=[np.array([1.0, 51.0/255.0, 1.0, 1])]*arm.n)
+
+
+        while np.linalg.norm(e) > tol and count < max_iter:
+            count = count + 1
+            J = get_jacobian(q) 
+
+            if method == 'J_T':
+                qdelta = J.T @ K @ e 
+            elif method == 'pinv':
+                Jdag = get_jdag(J)
+                qdelta = Jdag @ K @ e
+            else:
+                return q, False, "that method is not implemented"
+            
+            # here we assume that delta_t has been included in the gain matrix K. 
+            q = q + qdelta
+
+            if debug==True: 
+                viz.update(qs=[q0, q])
+                if debug_step == True:
+                    input('press Enter to see next iteration')
+                else: 
+                    time.sleep(1.0/2.0)
+
+            e = get_error(q)
+            print("error is: ", np.linalg.norm(e), "\t count is: ", count)
+
+        if debug==True: 
+            viz.close_viz()
+
+        return (q, e, count, count < max_iter, 'No errors noted, all clear')
 
 
     def Z_shift(self, R=np.eye(3), p=np.zeros(3,), p_frame='i'):
