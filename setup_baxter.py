@@ -1,4 +1,5 @@
 import numpy as np
+import transforms_key_hw04 as tr
 import kinematics_key_hw07 as kin
 
 def setup_baxter():
@@ -17,7 +18,18 @@ def setup_baxter():
                 [-0.7071, 0.7071, 0, -0.2597],
                 [0, 0, 1, 0.119],
                 [0, 0, 0, 1]]
+    
+    R = tr.roty(-np.pi/2)
+    T1 = tr.se3(R)
 
-    arm = kin.SerialArm(dh, base=T0_in_torso)
+    # Spatula Dimensions
+    L1 = 0.2 # m
+    L2 = 0.1 # m
+    spatulaAngle = 10 # degrees
+    T2 = tr.se3(tr.roty(-spatulaAngle*np.pi/180), p=[L1,0,0])
+    T3 = tr.se3(p=[L2,0,0])
+    T_tip = T1 @ T2 @ T3
+
+    arm = kin.SerialArm(dh, base=T0_in_torso, tip=T_tip)
 
     return arm
