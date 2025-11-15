@@ -20,7 +20,6 @@ if __name__ == "__main__":
     T_byPancake = tr.se3(p=[0.8,0,0])
     
 
-
     Ts = flip_pancake_sequence(arm, T_byPancake, pancakeLocation=pancakePosition_in_0)
 
 
