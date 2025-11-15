@@ -16,10 +16,11 @@ if __name__ == "__main__":
 
     arm = setup_baxter()
 
+    # Eli's Functions
     # travel2pancake(arm)
     T_byPancake = tr.se3(p=[0.8,0,0])
     
-
+    # Cody's Function
     Ts = flip_pancake_sequence(arm, T_byPancake, pancakeLocation=pancakePosition_in_0)
 
 
