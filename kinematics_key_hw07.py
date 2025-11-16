@@ -489,25 +489,27 @@ class SerialArm:
         if not isinstance(K, np.ndarray):
             return q, error, count, False,  "No gain matrix 'K' provided"
 
-        count = 0
-
         def get_error(q):
+            'Calculate Error in Pose'
+
             e = np.zeros(6)
 
-            cur_position = self.fk(q)
-            e[0:3] = target[:3,3] - cur_position[0:3, 3]
+            T_cur = self.fk(q, base=True, tip=True)
+            delta_T = inv(T_cur) @ target
+            axis_angle = R2axis(delta_T[:3,:3])
+            ang = axis_angle[0]
+            vec = axis_angle[1:4]
 
-            des_R = target[:3,:3]
-            cur_R = cur_position[:3,:3]
-            cur_R_in_n = cur_R.T @ des_R
-            axis_angle = R2axis(cur_R_in_n)
-            err_theta = axis_angle[0]
-            err_r = axis_angle[1:4]
-            err_vec_in_n = err_r * err_theta
-            err_vec = cur_R @ err_vec_in_n
-            e[3:6] = err_vec
+            e[0:3] = delta_T[:3,3]
+            e[3:6] = ang * vec
 
-            return e
+            errorTransform = np.zeros((6,6))
+            errorTransform[:3,:3] = T_cur[:3,:3]
+            errorTransform[3:6,3:6] = T_cur[:3,:3]
+
+            errorInBaseFrame = errorTransform @ e
+
+            return errorInBaseFrame
 
         def get_jacobian(q):
             J = self.jacob(q)
@@ -517,19 +519,19 @@ class SerialArm:
             Jdag = J.T @ np.linalg.inv(J @ J.T + np.eye(6) * kd**2)
             return Jdag
 
-        e = get_error(q)
-
         if debug == True: 
             from visualization import VizScene
             import time
             arm = SerialArm(self.dh, self.jt, self.base, self.tip)
             viz = VizScene()
             viz.add_arm(arm)
+            viz.add_marker(target[:3,3])
             
             # this arm with joints that are almost pink is for the intermediate solutions
             viz.add_arm(arm, joint_colors=[np.array([1.0, 51.0/255.0, 1.0, 1])]*arm.n)
 
-
+        count = 0
+        e = get_error(q)
         while np.linalg.norm(e) > tol and count < max_iter:
             count = count + 1
             J = get_jacobian(q) 

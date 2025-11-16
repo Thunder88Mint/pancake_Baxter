@@ -15,16 +15,29 @@ if __name__ == "__main__":
     q = [0,0,0,0,0,0,0]
 
     arm = setup_baxter()
-    T0 = arm.fk(q)
-    p0 = T0[:3,3] - np.array([-0.4, 0, 0])
+
+
+    q_test = [np.pi/4]*7
+    T_test = arm.fk(q_test, base=True, tip=True)
+
+    viz = VizScene()
+    viz.add_arm(arm)
+    viz.update(qs=[q_test])
+    viz.add_frame(np.eye(4),'World')
+    viz.add_marker(T_test[:3,3])
+    
+    # T0 = arm.fk(q)
+    # p0 = T0[:3,3] - np.array([-0.4, 0, 0])
 
     # travel2pancake(arm)
     # T_byPancake = tr.se3(p=[0.8,0,0])
-    T_byPancake = tr.se3(p=p0)
+
     
     # Test IK_full_pose
-    K = np.eye(6)
-    q1, e, count, successful, msg = arm.ik_full_pose(T_byPancake, q, K=K, max_iter=10000, method='pinv', debug=True, debug_step=True)
+    K = np.eye(6) * 0.5
+    debug = True
+    # q1, e, count, successful, msg = arm.ik_full_pose(T_test, q, K=K, max_iter=10000, method='J_T', debug=debug, debug_step=debug)
+    q1, e, count, successful, msg = arm.ik_full_pose(T_test, q, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
 
 
 
