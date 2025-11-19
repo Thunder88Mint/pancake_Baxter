@@ -8,7 +8,18 @@ from visualization import VizScene
 import transforms_key_hw04 as tr
 np.set_printoptions(precision=4, suppress=True)
 
+# Baxter Libraries
+from rad_baxter_limb import RadBaxterLimb
+from baxter_interface.limb import Limb
+import rospy
+
 if __name__ == "__main__":
+
+    # Setup Baxter
+    limb = RadBaxterLimb('right')
+    limb.set_joint_position_speed(0.8)
+    control_rate = rospy.Rate(500)
+
 
     pancakePosition_in_0 = np.array([1,0,0])
 
