@@ -6,7 +6,7 @@ from rad_baxter_limb import RadBaxterLimb
 from baxter_interface.limb import Limb
 import rospy
 
-def move_baxter(limb, q_des, qd_des):
+def move_baxter(limb, q_des):
 
     start = time.time()
     time_to_wait = 5
