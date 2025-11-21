@@ -30,6 +30,6 @@ def setup_baxter():
     T3 = tr.se3(p=[L2,0,0])
     T_tip = T1 @ T2 @ T3
 
-    arm = kin.SerialArm(dh, base=T0_in_torso, tip=T_tip)
+    arm = kin.SerialArm(dh, tip=T_tip)
 
     return arm

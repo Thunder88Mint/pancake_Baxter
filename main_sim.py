@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     # Test IK_full_pose
     K = np.eye(6) * 0.5
-    debug = False
+    debug = True
 
     arm = setup_baxter()
 
