@@ -48,4 +48,9 @@ if __name__ == "__main__":
         input('press Enter to see next iteration')
 
     
-
+    '''
+    pathPlanning_interpolation(Ts[0], Ts[1])   # Adjust elevation
+    trajectoryPlanning(Ts[1], Ts[2])   # Scoop Pancake
+    pathPlanning_interpolation(Ts[2], Ts[3])    # Lift Pancake
+    pathPlanning(Ts[3], Ts[4])    # Flip   (Probably needs trajectory planning)
+    '''
