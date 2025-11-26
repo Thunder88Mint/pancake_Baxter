@@ -15,3 +15,24 @@ def move_baxter(limb, q_des):
     while step < time_to_wait*500:
         limb.set_joint_positions_mod(q_des)
         step = step + 1
+
+
+
+'''
+def move_baxter(limb, q_start, q_goal, move_time=3.0):
+    rate_hz = 200
+    steps = int(move_time * rate_hz)
+
+    # Create smooth joint-space path
+    path = []
+    for i in range(steps):
+        alpha = i / (steps - 1)
+        q = (1 - alpha) * np.array(q_start) + alpha * np.array(q_goal)
+        path.append(q)
+
+    # Execute
+    rate = rospy.Rate(rate_hz)
+    for q in path:
+        limb.set_joint_positions_mod(q)
+        rate.sleep()
+'''

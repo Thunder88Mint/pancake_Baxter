@@ -44,13 +44,33 @@ if __name__ == "__main__":
     Ts = flip_pancake_sequence(arm, T_byPancake, pancakeLocation=pancakePosition_in_0)
     for i in range(len(Ts)):
         q1, e, count, successful, msg = arm.ik_full_pose(Ts[i], q1, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
+        viz.add_frame(Ts[i])
         viz.update(qs=[q1])
         input('press Enter to see next iteration')
 
     
     '''
-    pathPlanning_interpolation(Ts[0], Ts[1])   # Adjust elevation
-    trajectoryPlanning(Ts[1], Ts[2])   # Scoop Pancake
+    Ts_new = pathPlanning_interpolation(Ts[0], Ts[1])   # Adjust elevation
+    for i in range(len(Ts_new)):
+        q1, e, count, successful, msg = arm.ik_full_pose(Ts[i], q1, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
+        viz.update(qs=[q1])
+        input('press Enter to see next iteration')
+
+    trajectoryPlanning(Ts[1], Ts[2], v)   # Scoop Pancake
+    for i in range(len(Ts_new)):
+        q1, e, count, successful, msg = arm.ik_full_pose(Ts[i], q1, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
+        viz.update(qs=[q1])
+        input('press Enter to see next iteration')
+
     pathPlanning_interpolation(Ts[2], Ts[3])    # Lift Pancake
+    for i in range(len(Ts_new)):
+        q1, e, count, successful, msg = arm.ik_full_pose(Ts[i], q1, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
+        viz.update(qs=[q1])
+        input('press Enter to see next iteration')
+
     pathPlanning(Ts[3], Ts[4])    # Flip   (Probably needs trajectory planning)
+    for i in range(len(Ts_new)):
+        q1, e, count, successful, msg = arm.ik_full_pose(Ts[i], q1, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
+        viz.update(qs=[q1])
+        input('press Enter to see next iteration')
     '''
