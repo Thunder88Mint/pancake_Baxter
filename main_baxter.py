@@ -5,7 +5,6 @@ from travel2pancake import travel2pancake
 from move_baxter import move_baxter
 
 import kinematics_key_hw07 as kin
-from visualization import VizScene
 import transforms_key_hw04 as tr
 np.set_printoptions(precision=4, suppress=True)
 
@@ -28,24 +27,16 @@ if __name__ == "__main__":
     limb = RadBaxterLimb('right')
     limb.set_joint_position_speed(0.8)
     control_rate = rospy.Rate(500)
-
-    viz = VizScene()
-    viz.add_arm(arm)
-    viz.add_marker(pancakePosition_in_0)
-    viz.add_frame(np.eye(4),'World')
-    timeDelay = 10 # seconds
     
     # Step 0: initial position
     T0 = arm.fk(q)
     p0 = T0[:3,3]
-    viz.update(qs=[q])
     input('press Enter to see next iteration')
 
     # Step 1: move to pancake
     travel2pancake(arm)
     T_byPancake = tr.se3(p=[0.8,0,0])
     q1, e, count, successful, msg = arm.ik_full_pose(T_byPancake, q, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
-    viz.update(qs=[q1])
     input('press Enter to see next iteration')
     move_baxter(limb, q1)
 
@@ -54,7 +45,6 @@ if __name__ == "__main__":
     for i in range(len(Ts)):
         q1, e, count, successful, msg = arm.ik_full_pose(Ts[i], q1, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
         # viz.add_frame(Ts[i])
-        viz.update(qs=[q1])
         input('press Enter to see next iteration')
         move_baxter(limb, q1)
 
