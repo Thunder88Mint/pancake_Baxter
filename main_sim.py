@@ -14,6 +14,7 @@ if __name__ == "__main__":
     platePosition_in_0 = np.array([1,-1,0])
     q_initial = [np.pi/4,0,0,0,0,0,0]
 
+    # Settings
     visualize = True
     K = np.eye(6) * 0.25
     debug = False
