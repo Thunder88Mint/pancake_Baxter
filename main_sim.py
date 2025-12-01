@@ -17,7 +17,7 @@ if __name__ == "__main__":
     platePosition_in_0 = np.array([4,4,4])
     q_initial = [np.pi/4,0,0,0,0,0,0]
 
-    K = np.eye(6) * 0.5
+    K = np.eye(6) * 0.25
     debug = False
 
     # Setup

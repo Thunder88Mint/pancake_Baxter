@@ -38,6 +38,21 @@ def setup_baxter():
     T3 = tr.se3(p=[L2,0,0])
     T_tip = T1 @ T2 @ T3
 
-    arm = kin.SerialArm(dh, tip=T_tip, base=T0_in_torso)
+    # add baxter joint limits
+        # Rows = joints [S0, S1, E0, E1, W0, W1, W2]
+        # Cols = [min, max] in radians
+
+    joint_limits = np.array([
+        [-2.4609,  0.8901],   # S0
+        [-2.1468,  1.0472],   # S1
+        [-3.0194,  3.0194],   # E0
+        [-0.0524,  2.6180],   # E1
+        [-3.0543,  3.0543],   # W0
+        [-1.5708,  2.0944],   # W1
+        [-3.0543,  3.0543]    # W2
+    ])  
+
+    arm = kin.SerialArm(dh, tip=T_tip, base=T0_in_torso, joint_limits=joint_limits)
+
 
     return arm
