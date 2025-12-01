@@ -46,12 +46,10 @@ if __name__ == "__main__":
     if visualize:
         viz.update(qs=[q1])
         input('press Enter to see next iteration')
-    print(q1)
-    q_wrapped = (q1 + np.pi) % (2*np.pi) - np.pi
-    print(q_wrapped)
+
 
     # q2 = [1.5777, -0.2128, -0.2976, 1.7737, -2.6465, 0.9607, 0.8007]
-    T_check = arm.fk(q_wrapped, base=True, tip=True)
+    T_check = arm.fk(q1, base=True, tip=True)
     print('Should be: ', [0.8,0,0])
     print('Is: ', T_check[:3,3])
     # input('press Enter to see next iteration')
