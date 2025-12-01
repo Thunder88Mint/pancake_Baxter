@@ -11,12 +11,11 @@ if __name__ == "__main__":
 
     # Inputs
     pancakePosition_in_0 = np.array([1,-0.5,0])
-    platePosition_in_0 = np.array([4,4,4])
+    platePosition_in_0 = np.array([1,-1,0])
     q_initial = [np.pi/4,0,0,0,0,0,0]
 
-    # Settings
     visualize = True
-    K = np.eye(6) * 0.5
+    K = np.eye(6) * 0.25
     debug = False
 
     # Setup
@@ -27,6 +26,8 @@ if __name__ == "__main__":
         viz = VizScene()
         viz.add_arm(arm)
         viz.add_marker(pancakePosition_in_0)
+        grey = np.array([0.3, 0.3, 0.3, 1])
+        viz.add_marker(platePosition_in_0,grey)
         viz.add_frame(np.eye(4),'World')
         timeDelay = 10 # seconds
     
