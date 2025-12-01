@@ -9,14 +9,13 @@ np.set_printoptions(precision=4, suppress=True)
 
 if __name__ == "__main__":
 
-    visualize = True
-    
-
     # Inputs
     pancakePosition_in_0 = np.array([1,-0.5,0])
     platePosition_in_0 = np.array([4,4,4])
     q_initial = [np.pi/4,0,0,0,0,0,0]
 
+    # Settings
+    visualize = True
     K = np.eye(6) * 0.5
     debug = False
 
@@ -31,11 +30,10 @@ if __name__ == "__main__":
         viz.add_frame(np.eye(4),'World')
         timeDelay = 10 # seconds
     
+
     # Step 0: initial position
     T0 = arm.fk(q_initial,base=True)
     p0 = T0[:3,3]
-    # print(p0)
-    # print(q_initial)
     if visualize:
         viz.update(qs=[q_initial])
         input('press Enter to see next iteration')
