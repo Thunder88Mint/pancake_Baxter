@@ -26,7 +26,8 @@ if __name__ == "__main__":
     arm = setup_baxter()
     limb = RadBaxterLimb('right')
     limb.set_joint_position_speed(0.8)
-    control_rate = rospy.Rate(500)
+    # control_rate = rospy.Rate(500)
+    baxterFeedRateHz = 500
     
     # Step 0: initial position
     T0 = arm.fk(q)
@@ -38,7 +39,7 @@ if __name__ == "__main__":
     T_byPancake = tr.se3(p=[0.8,0,0])
     q1, e, count, successful, msg = arm.ik_full_pose(T_byPancake, q, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
     input('press Enter to see next iteration')
-    move_baxter(limb, q1)
+    move_baxter(limb, q1, baxterFeedRateHz)
 
     # Step 2: Flip Pancake
     Ts = flip_pancake_sequence(arm, T_byPancake, pancakeLocation=pancakePosition_in_0)
@@ -46,7 +47,7 @@ if __name__ == "__main__":
         q1, e, count, successful, msg = arm.ik_full_pose(Ts[i], q1, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
         # viz.add_frame(Ts[i])
         input('press Enter to see next iteration')
-        move_baxter(limb, q1)
+        move_baxter(limb, q1, baxterFeedRateHz)
 
     
 

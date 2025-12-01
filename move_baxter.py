@@ -6,7 +6,8 @@ from rad_baxter_limb import RadBaxterLimb
 from baxter_interface.limb import Limb
 import rospy
 
-def move_baxter(limb, q_des):
+def move_baxter(limb, q_des, feedRateHz):
+    control_rate = rospy.Rate(feedRateHz)
 
     start = time.time()
     time_to_wait = 5
@@ -14,7 +15,9 @@ def move_baxter(limb, q_des):
     step = 1
     while step < time_to_wait*500:
         limb.set_joint_positions_mod(q_des)
+        control_rate.sleep()
         step = step + 1
+        
 
 
 
