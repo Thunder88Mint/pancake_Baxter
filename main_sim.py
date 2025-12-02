@@ -50,7 +50,7 @@ if __name__ == "__main__":
         # input('press Enter to see next iteration')
 
 
-
+    # Step 1: move to pancake
     # GPT
     # 1. Target TIP pose in world
     T_tip_target_world = tr.se3(p=pancakePosition_in_w)
@@ -65,27 +65,18 @@ if __name__ == "__main__":
     goal = T_linkN_target_base[:3, 3]
     # goal = T_tip_target_base[:3,3]
 
-    print("Final goal in BASE frame:", goal)
-
+    # print("Final goal in BASE frame:", goal)
 
 
     obst_location_in_0 = (tr.inv(arm.get_base_transform()) @ np.append(tablePosition_in_w,1))[:3]
 
 
-
-
-    # T_tip_target_world = tr.se3(p=pancakePosition_in_w)
-    # T_tip_target_base  = tr.inv(arm.get_base_transform()) @ T_tip_target_world
-    # T_linkN_target_base = T_tip_target_base @ tr.inv(arm.get_tip_transform())
-    # goal = T_linkN_target_base[:3,3]
-
-
-    print("Base transform:\n", arm.get_base_transform())
-    print("Tip transform:\n", arm.get_tip_transform())
-    print("T_tip_target_world:\n", T_tip_target_world)
-    print("T_tip_target_base:\n", T_tip_target_base)
-    print("T_linkN_target_base:\n", T_linkN_target_base)
-    print("GOAL (base frame):", goal)
+    # print("Base transform:\n", arm.get_base_transform())
+    # print("Tip transform:\n", arm.get_tip_transform())
+    # print("T_tip_target_world:\n", T_tip_target_world)
+    # print("T_tip_target_base:\n", T_tip_target_base)
+    # print("T_linkN_target_base:\n", T_linkN_target_base)
+    # print("GOAL (base frame):", goal)
 
 
     qs = compute_path2pancake(
@@ -97,76 +88,6 @@ if __name__ == "__main__":
         )
 
 
-
-
-
-
-
-
-
-
-
-    '''
-    # Step 1: move to pancake
-    T_byPancake_tip_in_world = tr.se3(p=[0.8,-0.5,0])
-
-
-    goal_in_0 = (tr.inv(arm.get_base_transform()) @ T_byPancake_tip_in_world)[:3,3]
-    obst_location_in_0 = (tr.inv(arm.get_base_transform()) @ np.append(tablePosition_in_w,1))[:3]
-    qs = compute_path2pancake(
-        arm=arm,
-        q_init=q_current,
-        goal=goal_in_0,
-        obst_location=obst_location_in_0,
-        obst_radius=tableInfluenceRadius
-        )
-    '''
-
-
-
-
-
-
-
-    '''
-    T_byPancake_tip_in_0 = tr.inv(arm.get_base_transform()) @ T_byPancake_tip_in_world
-    T_n_in_0 = T_byPancake_tip_in_0 @ tr.inv(arm.get_tip_transform())
-
-    # added tip and base
-    viz.add_marker(T_byPancake_tip_in_world[:3,3],grey)
-    viz.add_marker(tablePosition_in_w,grey)
-    qs = compute_path2pancake(arm=arm, 
-                                q_init=q_current, 
-                                goal=T_byPancake_tip_in_world[:3,3], 
-                                obst_location=tablePosition_in_w, 
-                                obst_radius=tableInfluenceRadius)
-
-
-    
-    goal = T_n_in_0[:3,3]
-    
-    print(tablePosition_in_w)
-    print(np.append(tablePosition_in_w,1))
-    obst_location_in_0 = tr.inv(arm.get_base_transform()) @ np.append(tablePosition_in_w,1)
-
-    # obst_location_in_0 = np.append(obst_location_in_0,1)
-    obst_location_in_w = arm.get_base_transform() @ obst_location_in_0
-    obst_location_in_w = obst_location_in_w[:3]
-    # viz.add_marker(arm.get_base_transform() @ obst_location_in_0, grey)
-
-    goal = np.append(goal, 1)
-    goal_in_w = arm.get_base_transform() @ goal
-    goal_in_w = goal_in_w[:3]
-    # viz.add_marker(goal_in_w)
-    '''
-
-    input('press Enter to see next iteration')
-
-    # qs = compute_path2pancake(arm, 
-    #                           q_current, 
-    #                           goal=goal[:3], 
-    #                           obst_location=obst_location_in_0[:3], 
-    #                           obst_radius=tableInfluenceRadius)
     if visualize:
         print('steps: ', len(qs))
         for i in range(len(qs)):
@@ -174,6 +95,16 @@ if __name__ == "__main__":
             viz.update(qs=[qs[i]])
             viz.hold(0.00625)
         input('press Enter to see next iteration')
+
+
+    # Step 1.1: Angle Spatula
+    q_current = qs[-1]
+    q_new, _, _, _, _ = arm.ik_full_pose(T_tip_target_world, q_current, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
+    if visualize:
+        viz.update(qs=[q_new])
+        input('press Enter to see next iteration')
+
+
 
 
 '''

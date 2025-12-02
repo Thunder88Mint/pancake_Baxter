@@ -1,9 +1,22 @@
 import numpy as np
 from kinematics_key_hw07 import SerialArm
+import kinematics_key_hw07 as kin
+import time
 
-def compute_path2pancake(arm: SerialArm, q_init, goal, obst_location, obst_radius):
+def compute_path2pancake(arm: SerialArm, q_init, goal, obst_location, obst_radius, debug=False, debug_step=False):
       # this can be similar to your IK solution for HW 6, but will require modifications
       # to make sure you avoid the obstacle as well.
+
+      if debug:
+            from visualization import VizScene
+            arm2 = kin.SerialArm(arm.dh, tip=arm.tip)
+            viz = VizScene()
+            viz.add_arm(arm2)
+            viz.add_arm(arm2, joint_colors=[np.array([1.0, 51.0/255.0, 1.0, 1])]*arm2.n)
+            viz.add_marker(goal)
+            viz.add_obstacle(obst_location,rad=obst_radius)
+
+            
 
       goal_arr = np.array(goal).reshape(3,)
       obst_location_arr = np.array(obst_location).reshape(3,)
@@ -103,5 +116,15 @@ def compute_path2pancake(arm: SerialArm, q_init, goal, obst_location, obst_radiu
             counter = counter + 1
             # print("counter:", counter)
             # print("error:", error)
+
+            if debug==True: 
+                viz.update(qs=[q_init, q])
+                if debug_step == True:
+                    input('press Enter to see next iteration')
+                else: 
+                    time.sleep(1.0/2.0)
+
+      if debug==True: 
+            viz.close_viz()
 
       return q_s
