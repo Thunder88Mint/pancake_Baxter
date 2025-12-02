@@ -128,9 +128,11 @@ class SerialArm:
             self.transforms.append(f.A)
 
         # assigning the base, and tip transforms that will be added to the default DH transformations.
-        self.base = base
-        self.tip = tip
+        # self.base = base
+        # self.tip = tip
         self.qlim = joint_limits
+        self.base = np.array(base, dtype=float)
+        self.tip = np.array(tip, dtype=float)
 
         # calculating rough numbers to understand the workspace for drawing the robot
         self.reach = 0
@@ -155,7 +157,12 @@ class SerialArm:
         for i in range(self.n):
             dh_string += f"{self.dh[i][0]}\t|\t{self.dh[i][1]}\t|\t{self.dh[i][2]}\t|\t{self.dh[i][3]}\t|\t{self.jt[i]}\n"
         return "Serial Arm\n" + dh_string
-
+    
+    def get_base_transform(self):
+        return self.base.copy()
+    
+    def get_tip_transform(self):
+        return self.tip.copy()
 
     def fk(self, q, index=None, base=False, tip=False):
         """

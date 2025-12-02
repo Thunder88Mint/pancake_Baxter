@@ -2,17 +2,24 @@ import numpy as np
 from setup_baxter import setup_baxter
 from flip_pancake_sequence import flip_pancake_sequence
 from travel2pancake import travel2pancake
+from compute_path2pancake import compute_path2pancake
 
 import kinematics_key_hw07 as kin
 import transforms_key_hw04 as tr
 np.set_printoptions(precision=4, suppress=True)
 
+
+grey = np.array([0.3, 0.3, 0.3, 1])
+
+
 if __name__ == "__main__":
 
     # Inputs
-    pancakePosition_in_0 = np.array([1,-0.5,0])
-    platePosition_in_0 = np.array([1,-1,0])
-    q_initial = [np.pi/4,0,0,0,0,0,0]
+    pancakePosition_in_w = np.array([1,-0.5,0])
+    platePosition_in_w = np.array([1,-1,0])
+    q_initial = [0,0,0,0,0,0,0]
+    tablePosition_in_w = pancakePosition_in_w - np.array([0,0,1])
+    tableInfluenceRadius = 1
 
     # Settings
     visualize = True
@@ -26,28 +33,157 @@ if __name__ == "__main__":
         from visualization import VizScene
         viz = VizScene()
         viz.add_arm(arm)
-        viz.add_marker(pancakePosition_in_0)
-        grey = np.array([0.3, 0.3, 0.3, 1])
-        viz.add_marker(platePosition_in_0,grey)
+        viz.add_frame(arm.get_base_transform(),'Base')
+        viz.add_marker(pancakePosition_in_w)
+        viz.add_marker(platePosition_in_w,grey)
         viz.add_frame(np.eye(4),'World')
-        timeDelay = 10 # seconds
+        # viz.add_obstacle(tablePosition_in_w, rad=tableInfluenceRadius)
+        # timeDelay = 10 # seconds
     
 
     # Step 0: initial position
+    q_current = q_initial
     T0 = arm.fk(q_initial,base=True)
     p0 = T0[:3,3]
     if visualize:
         viz.update(qs=[q_initial])
-        input('press Enter to see next iteration')
+        # input('press Enter to see next iteration')
 
 
+
+    # GPT
+    # 1. Target TIP pose in world
+    T_tip_target_world = tr.se3(p=pancakePosition_in_w)
+
+    # 2. Convert world -> base
+    T_tip_target_base = tr.inv(arm.get_base_transform()) @ T_tip_target_world
+
+    # 3. Remove the tool-tip transform
+    T_linkN_target_base = T_tip_target_base @ tr.inv(arm.get_tip_transform())
+
+    # 4. Extract the xyz goal
+    goal = T_linkN_target_base[:3, 3]
+    # goal = T_tip_target_base[:3,3]
+
+    print("Final goal in BASE frame:", goal)
+
+
+
+    obst_location_in_0 = (tr.inv(arm.get_base_transform()) @ np.append(tablePosition_in_w,1))[:3]
+
+
+
+
+    # T_tip_target_world = tr.se3(p=pancakePosition_in_w)
+    # T_tip_target_base  = tr.inv(arm.get_base_transform()) @ T_tip_target_world
+    # T_linkN_target_base = T_tip_target_base @ tr.inv(arm.get_tip_transform())
+    # goal = T_linkN_target_base[:3,3]
+
+
+    print("Base transform:\n", arm.get_base_transform())
+    print("Tip transform:\n", arm.get_tip_transform())
+    print("T_tip_target_world:\n", T_tip_target_world)
+    print("T_tip_target_base:\n", T_tip_target_base)
+    print("T_linkN_target_base:\n", T_linkN_target_base)
+    print("GOAL (base frame):", goal)
+
+
+    qs = compute_path2pancake(
+        arm=arm, 
+        q_init=q_current, 
+        goal=goal,
+        obst_location=obst_location_in_0,
+        obst_radius=tableInfluenceRadius
+        )
+
+
+
+
+
+
+
+
+
+
+
+    '''
     # Step 1: move to pancake
-    travel2pancake(arm)
-    T_byPancake = tr.se3(p=[0.8,-0.5,0])
-    q1, e, count, successful, msg = arm.ik_full_pose(T_byPancake, q_initial, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
+    T_byPancake_tip_in_world = tr.se3(p=[0.8,-0.5,0])
+
+
+    goal_in_0 = (tr.inv(arm.get_base_transform()) @ T_byPancake_tip_in_world)[:3,3]
+    obst_location_in_0 = (tr.inv(arm.get_base_transform()) @ np.append(tablePosition_in_w,1))[:3]
+    qs = compute_path2pancake(
+        arm=arm,
+        q_init=q_current,
+        goal=goal_in_0,
+        obst_location=obst_location_in_0,
+        obst_radius=tableInfluenceRadius
+        )
+    '''
+
+
+
+
+
+
+
+    '''
+    T_byPancake_tip_in_0 = tr.inv(arm.get_base_transform()) @ T_byPancake_tip_in_world
+    T_n_in_0 = T_byPancake_tip_in_0 @ tr.inv(arm.get_tip_transform())
+
+    # added tip and base
+    viz.add_marker(T_byPancake_tip_in_world[:3,3],grey)
+    viz.add_marker(tablePosition_in_w,grey)
+    qs = compute_path2pancake(arm=arm, 
+                                q_init=q_current, 
+                                goal=T_byPancake_tip_in_world[:3,3], 
+                                obst_location=tablePosition_in_w, 
+                                obst_radius=tableInfluenceRadius)
+
+
+    
+    goal = T_n_in_0[:3,3]
+    
+    print(tablePosition_in_w)
+    print(np.append(tablePosition_in_w,1))
+    obst_location_in_0 = tr.inv(arm.get_base_transform()) @ np.append(tablePosition_in_w,1)
+
+    # obst_location_in_0 = np.append(obst_location_in_0,1)
+    obst_location_in_w = arm.get_base_transform() @ obst_location_in_0
+    obst_location_in_w = obst_location_in_w[:3]
+    # viz.add_marker(arm.get_base_transform() @ obst_location_in_0, grey)
+
+    goal = np.append(goal, 1)
+    goal_in_w = arm.get_base_transform() @ goal
+    goal_in_w = goal_in_w[:3]
+    # viz.add_marker(goal_in_w)
+    '''
+
+    input('press Enter to see next iteration')
+
+    # qs = compute_path2pancake(arm, 
+    #                           q_current, 
+    #                           goal=goal[:3], 
+    #                           obst_location=obst_location_in_0[:3], 
+    #                           obst_radius=tableInfluenceRadius)
     if visualize:
-        viz.update(qs=[q1])
+        print('steps: ', len(qs))
+        for i in range(len(qs)):
+            # print('Progress: ', i+1, ' of ', len(qs))
+            viz.update(qs=[qs[i]])
+            viz.hold(0.00625)
         input('press Enter to see next iteration')
+
+
+'''
+
+    # travel2pancake(arm)
+    
+    # q1, e, count, successful, msg = arm.ik_full_pose(T_byPancake, q_initial, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
+    # if visualize:
+    #     viz.update(qs=[q1])
+    #     input('press Enter to see next iteration')
 
 
     # q2 = [1.5777, -0.2128, -0.2976, 1.7737, -2.6465, 0.9607, 0.8007]
@@ -57,7 +193,7 @@ if __name__ == "__main__":
     # input('press Enter to see next iteration')
 
     # Step 2: Flip Pancake
-    Ts = flip_pancake_sequence(arm, T_byPancake, pancakeLocation=pancakePosition_in_0)
+    Ts = flip_pancake_sequence(arm, T_byPancake, pancakeLocation=pancakePosition_in_w)
     for i in range(len(Ts)):
         q1, e, count, successful, msg = arm.ik_full_pose(Ts[i], q1, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
         print(q1)
@@ -67,12 +203,18 @@ if __name__ == "__main__":
 
     
 
+'''
 
 
 
 
 
-    '''
+
+
+
+
+
+'''
     Ts_new = pathPlanning_interpolation(Ts[0], Ts[1])   # Adjust elevation
     for i in range(len(Ts_new)):
         q1, e, count, successful, msg = arm.ik_full_pose(Ts[i], q1, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
@@ -97,3 +239,4 @@ if __name__ == "__main__":
         viz.update(qs=[q1])
         input('press Enter to see next iteration')
     '''
+

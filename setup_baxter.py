@@ -27,13 +27,16 @@ def setup_baxter():
                 [0, 0, 1, 0.119],
                 [0, 0, 0, 1]]
     
-    R = tr.roty(-np.pi/2)
-    T1 = tr.se3(R)
+    
 
     # Spatula Dimensions
     L1 = 0.25 # m
     L2 = 0.1 # m
+
+    # Spatula Tip Transform
     spatulaAngle = 10 # degrees
+    R = tr.roty(-np.pi/2)
+    T1 = tr.se3(R)
     T2 = tr.se3(tr.roty(-spatulaAngle*np.pi/180), p=[L1,0,0])
     T3 = tr.se3(p=[L2,0,0])
     T_tip = T1 @ T2 @ T3
@@ -41,7 +44,6 @@ def setup_baxter():
     # add baxter joint limits
         # Rows = joints [S0, S1, E0, E1, W0, W1, W2]
         # Cols = [min, max] in radians
-
     joint_limits = np.array([
         [-2.4609,  0.8901],   # S0
         [-2.1468,  1.0472],   # S1

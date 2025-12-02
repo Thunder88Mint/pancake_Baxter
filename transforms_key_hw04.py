@@ -125,6 +125,7 @@ def inv(T):
         Returns:
         Tinv - 4x4 numpy array that is the inverse to T so that T @ Tinv = I
     """
+    T = np.array(T, dtype=float)
     
     T_inv = np.eye(4)
 
