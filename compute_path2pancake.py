@@ -48,7 +48,7 @@ def compute_path2pancake(arm: SerialArm, q_init, goal, obst_location, obst_radiu
 
       # safety factor that can be tuned for when the spring forces to push away from the obstacle starts
       # acting. 
-      safety_factor = 0 #2.0
+      safety_factor = 0.4 #2.0
 
       # will stop when reach within 1 cm or hit 500 iterations. 
       while error > 0.01 and counter < 5000:

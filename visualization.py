@@ -428,7 +428,7 @@ class VizScene:
         m1 = gl.GLMeshItem(
             meshdata=mobst,
             smooth=True,
-            color=yellow
+            color=color
         )
         m1.translate(*pos)
 
