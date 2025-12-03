@@ -18,7 +18,7 @@ dark_red = np.array([0.3, 0, 0, 1])
 if __name__ == "__main__":
 
     # Inputs
-    pancakePosition_in_w = np.array([1,0,0])
+    pancakePosition_in_w = np.array([1.0,0,0])
     pancakeDiameter = 0.15 # [meters]
     platePosition_in_w = np.array([1,-1,0])
     q_initial = [0,0,0,0,0,0,0]
