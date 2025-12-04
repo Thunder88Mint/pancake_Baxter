@@ -546,12 +546,23 @@ class SerialArm:
             
             # Enforce joint limits
             if self.qlim is not None:
-                for i in range(self.n):
-                    if q[i] + qdelta[i] < self.qlim[i][0]:
-                        qdelta[i] = self.qlim[i][0] - q[i]
-                    elif q[i] + qdelta[i] > self.qlim[i][1]:
-                        qdelta[i] = self.qlim[i][1] - q[i]
+                # for i in range(self.n):
+                #     if q[i] + qdelta[i] < self.qlim[i][0]:
+                #         qdelta[i] *= (self.qlim[i][0] - q[i]) / qdelta[i]
+                #     elif q[i] + qdelta[i] > self.qlim[i][1]:
+                #         qdelta[i] *= (self.qlim[i][1] - q[i]) / qdelta[i]
 
+                qdelta_limit = np.zeros_like(q)
+                for i in range(self.n):
+                    qmin, qmax = self.qlim[i]
+                    margin = 0.1  # radians
+                    if q[i] < qmin + margin:
+                        qdelta_limit[i] += 0.1 * (qmin + margin - q[i])
+                    elif q[i] > qmax - margin:
+                        qdelta_limit[i] += 0.1 * (qmax - margin - q[i])
+                qdelta += qdelta_limit
+
+                        
 
             # here we assume that delta_t has been included in the gain matrix K. 
             q = q + qdelta
