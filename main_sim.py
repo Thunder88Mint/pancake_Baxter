@@ -3,6 +3,7 @@ from setup_baxter import setup_baxter
 from flip_pancake_sequence import flip_pancake_sequence
 # from travel2pancake import travel2pancake
 from interpolate_between_positions_in_joint_space import interpolate_between_positions_in_joint_space
+from move_baxter_in_visual import move_baxter_in_visual
 
 import kinematics_key_hw07 as kin
 import transforms_key_hw04 as tr
@@ -46,19 +47,16 @@ if __name__ == "__main__":
 
     # Step 1: move to pancake
     T_byPancake = tr.se3(p=[0.8,-0.5,0])
-    debug = False
     q1, e, count, successful, msg = arm.ik_full_pose(T_byPancake, q_initial, K=K, max_iter=20000, method='pinv', debug=debug, debug_step=debug)
     qs = interpolate_between_positions_in_joint_space(q_initial, q1, 100)
+    q_current = qs[-1]
 
     if visualize:
-        # viz.update(qs=[q1])
-        viz.add_frame(T_byPancake)
-        for i in range(len(qs)):
-            viz.update(qs=[qs[i]])
-            viz.hold(0.001)
-        viz.remove_frame(-1)
-        q_current = qs[-1]
-        input('press Enter to see next iteration')
+        move_baxter_in_visual(viz=viz, 
+                              qs=qs, 
+                              stepHoldTime=0.001, 
+                              T_goal=T_byPancake
+                            )
         
 
     # Step 2: Flip Pancake
@@ -66,14 +64,13 @@ if __name__ == "__main__":
     for i in range(len(Ts)):
         q_goal, e, count, successful, msg = arm.ik_full_pose(Ts[i], q_current, K=K, max_iter=10000, method='pinv', debug=debug, debug_step=debug)
         qs = interpolate_between_positions_in_joint_space(q_current, q_goal, steps=100)
+        q_current = qs[-1]
 
         if visualize:
-            viz.add_frame(Ts[i])
-            for i in range(len(qs)):
-                viz.update(qs=[qs[i]])
-                viz.hold(0.001)
-            viz.remove_frame(-1)
-            q_current = qs[-1]
-            input('press Enter to see next iteration')
+            move_baxter_in_visual(viz=viz, 
+                                  qs=qs, 
+                                  stepHoldTime=0.001, 
+                                  T_goal=Ts[i]
+                                  )
         
 
