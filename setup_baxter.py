@@ -34,7 +34,7 @@ def setup_baxter():
     L2 = 0.1 # m
 
     # Spatula Tip Transform
-    spatulaAngle = 10 # degrees
+    spatulaAngle = -10 # degrees
     R = tr.roty(-np.pi/2)
     T1 = tr.se3(R)
     T2 = tr.se3(tr.roty(-spatulaAngle*np.pi/180), p=[L1,0,0])
