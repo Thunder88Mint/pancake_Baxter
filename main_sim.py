@@ -3,6 +3,7 @@ from setup_baxter import setup_baxter
 from flip_pancake_sequence import flip_pancake_sequence
 from travel2pancake import travel2pancake
 from compute_path2pancake import compute_path2pancake
+from interpolate_between_positions_in_joint_space import interpolate_between_positions_in_joint_space
 
 import kinematics_key_hw07 as kin
 import transforms_key_hw04 as tr
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     p0 = T0[:3,3]
     if visualize:
         viz.update(qs=[q_initial])
-        # input('press Enter to see next iteration')
+        input('press Enter to see next iteration')
 
 
     # Determine Approach Direction
