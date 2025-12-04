@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # Inputs
     pancakePosition_in_0 = np.array([1,-0.5,0])
     platePosition_in_0 = np.array([1,-1,0])
-    q_initial = [0,0,0,0,0,0,0]
+    q_initial = [np.pi/4,0,0,0,0,0,0]
 
     # Settings
     K = np.eye(6) * 0.25
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     # Step 1: move to pancake
     T_byPancake = tr.se3(p=[0.8,-0.5,0])
-    debug = True
+    debug = False
     q1, e, count, successful, msg = arm.ik_full_pose(T_byPancake, q_initial, K=K, max_iter=20000, method='pinv', debug=debug, debug_step=debug)
     qs = interpolate_between_positions_in_joint_space(q_initial, q1, 100)
 
