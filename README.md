@@ -12,6 +12,11 @@ My primary contributions focused on simulation:
 - Designed a path planning function that interpolates smoothly between joint-space poses
 - Implemented obstacle avoidance logic to prevent collisions with the table and surrounding environment
 
+## Methods
+- Forward and Inverse Kinematics
+- Path Planning
+- Tools used (Python, Baxter Robot, Baxter ROS code, VScode)
+
 ## Results
 - A project presentation and demonstration can be viewed here:
   https://www.youtube.com/watch?v=zeTX5xbyywE&list=WL&index=29
